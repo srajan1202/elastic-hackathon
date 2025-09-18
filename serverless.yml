@@ -1,0 +1,52 @@
+service: carbonscope-pipeline
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    NEWSAPI_KEY: ${env:NEWSAPI_KEY}
+    SQS_URL:
+      Ref: EsgEventsQueue
+    COMPANY_LIST: "NVIDIA,Intel"
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+functions:
+  newsFetcher:
+    handler: handler.handler
+    timeout: 30
+    events:
+      - schedule: rate(5 minutes) # run every 5 min
+
+resources:
+  Resources:
+    EsgEventsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: news-event-extractor
+
+    # give Lambda permission to send messages to the queue
+    NewsFetcherSQSPolicy:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: NewsFetcherSQSPolicy
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: SQSSendPolicy
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - sqs:SendMessage
+                  Resource:
+                    - Fn::GetAtt:
+                        - EsgEventsQueue
+                        - Arn

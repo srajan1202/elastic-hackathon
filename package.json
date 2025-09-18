@@ -1,0 +1,32 @@
+{
+  "name": "elastic-hackathon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srajan1202/elastic-hackathon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/srajan1202/elastic-hackathon/issues"
+  },
+  "homepage": "https://github.com/srajan1202/elastic-hackathon#readme",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.891.0",
+    "@elastic/elasticsearch": "^9.1.1",
+    "@langchain/core": "^0.3.77",
+    "@mozilla/readability": "^0.6.0",
+    "dotenv": "^16.6.1",
+    "jsdom": "^27.0.0",
+    "node-fetch": "^3.3.2",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^5.4.149"
+  }
+}
