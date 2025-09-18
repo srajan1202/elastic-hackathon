@@ -1,0 +1,7 @@
+sudo docker run docker.elastic.co/mcp/elasticsearch
+
+
+
+sudo docker run --rm -e ES_URL=https://4e98f18d23f84d59ad7be6e0fd810d38.us-west-2.aws.found.io:443  -e ES_API_KEY=xxxxxx -e ES_SSL_SKIP_VERIFY=true  -p 8080:8080 docker.elastic.co/mcp/elasticsearch http
+
+
