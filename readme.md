@@ -29,9 +29,6 @@ An intelligent real-time search and analytics system that combines Elasticsearch
 3. Multi-Agent AI System: Specialized agents for different data processing tasks
 4. Intelligent Summarization: Automatic generation of concise result summaries
 
-
-Here’s a draft deployment document you can refine for your team:
-
 ---
 
 # Build and Deploy Project on AWS
