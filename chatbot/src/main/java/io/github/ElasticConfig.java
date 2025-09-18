@@ -16,22 +16,16 @@ import org.springframework.stereotype.Component;
 public class ElasticConfig {
 
     @Bean
-    public RestClient restClient(
+    public ElasticsearchClient elasticsearchClient(
             @Value("${elastic.url}") String elasticUrl,
             @Value("${elastic.apiKey}") String apiKey) {
-        return RestClient
+        var client = RestClient
                 .builder(HttpHost.create(elasticUrl))
                 .setDefaultHeaders(new Header[]{
                         new BasicHeader("Authorization", "ApiKey " + apiKey)
                 })
                 .build();
-
-    }
-
-    @Bean
-    public ElasticsearchClient elasticsearchClient(RestClient restClient) {
-        ElasticsearchTransport transport = new RestClientTransport(
-                restClient, new JacksonJsonpMapper());
+        var transport = new RestClientTransport(client, new JacksonJsonpMapper());
         return new ElasticsearchClient(transport);
     }
 }
