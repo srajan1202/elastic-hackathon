@@ -14,14 +14,13 @@ import software.amazon.awssdk.services.bedrockruntime.BedrockRuntimeClient;
 
 import java.io.IOException;
 
-public class AgentMain implements RequestHandler<SQSEvent, Void> {
+public class EsgMain implements RequestHandler<SQSEvent, Void> {
     private static String MODEL_NAME = "us.anthropic.claude-3-5-sonnet-20241022-v2:0";
-    private final EsgEventClassifier esgEventClassifier;
-    private final EsgEventEnricher esgEventEnricher;
     private final ChatModel model;
     private final ElasticsearchClient elasticsearchClient;
+    private final ESGAgent esgAgent;
 
-    public AgentMain() {
+    public EsgMain() {
         var client = BedrockRuntimeClient.builder()
                 .region(Region.US_WEST_2)
                 .build();
@@ -32,44 +31,34 @@ public class AgentMain implements RequestHandler<SQSEvent, Void> {
                 .logRequests(true)
                 .logResponses(true)
                 .build();
-        esgEventClassifier = AiServices
-                .builder(EsgEventClassifier.class)
-                .chatModel(model)
-                .chatMemoryProvider(memoryId -> MessageWindowChatMemory.withMaxMessages(5))
-                .build();
-        esgEventEnricher = AiServices
-                .builder(EsgEventEnricher.class)
+        esgAgent = AiServices
+                .builder(ESGAgent.class)
                 .chatModel(model)
                 .chatMemoryProvider(memoryId -> MessageWindowChatMemory.withMaxMessages(5))
                 .build();
 
-        elasticsearchClient = new ElasticConfig().restClient();
-
+        elasticsearchClient = new ElasticConfig().elasticClient();
     }
 
     @Override
     public Void handleRequest(SQSEvent event, Context context) {
         event.getRecords().forEach(record -> {
             var eventData = record.getBody();
-            EsgClassificationResult classify = esgEventClassifier.classify(eventData);
-            context.getLogger().log("Classify: " + classify);
-            if (classify.isEsg()) {
-                EnrichedEvent enrich = esgEventEnricher.enrich(eventData);
-                context.getLogger().log("Enriched event: " + enrich);
-
-                try {
-                    IndexResponse response = elasticsearchClient.index(i -> i
-                            .index("realtime-events-data")
-                            .document(enrich)
-                    );
-                    context.getLogger().log("Index response: " + response);
-                } catch (IOException e) {
-                    context.getLogger().log(e.getMessage());
-                    throw new RuntimeException(e);
-                }
+            var report = esgAgent.generateReport(1, "Generate esg report for company in event: \n Event: " + eventData);
+            context.getLogger().log("Report: " + report);
+            try {
+                IndexResponse response = elasticsearchClient.index(i -> i
+                        .index("companies-esg-summary")
+                        .document(report)
+                );
+                context.getLogger().log("Index response: " + response);
+            } catch (IOException e) {
+                context.getLogger().log(e.getMessage());
+                throw new RuntimeException(e);
             }
         });
         return null;
     }
+
 }
 
