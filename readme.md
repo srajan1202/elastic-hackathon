@@ -246,4 +246,12 @@ For EC2 (chatbot), configure these as system environment variables or in a `.env
 
 
 
+## Frontend Setup 
 
+```shell
+npm i
+npm run build
+
+#Local run
+npm run dev
+```
