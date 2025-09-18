@@ -7,9 +7,7 @@ import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.service.V;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class EsgTools {
     private final ElasticsearchClient client;
@@ -18,7 +16,9 @@ public class EsgTools {
         this.client = new ElasticConfig().elasticClient();
     }
 
-    record Response(String text, Map<String, String> metadata) {}
+    record Response(String text, Map<String, String> metadata) {
+    }
+
     @Tool("Search ESG report text using semantic vector search")
     public String search(
             @V("semantic query text") String query,
@@ -42,7 +42,7 @@ public class EsgTools {
             StringBuilder builder = new StringBuilder();
             for (Hit<Object> hit : response.hits().hits()) {
                 System.out.println(hit.source());
-                builder.append(((Map)hit.source()).get("text")).append("\n\n");
+                builder.append(((Map) hit.source()).get("text")).append("\n\n");
             }
             return builder.toString();
         } catch (IOException e) {

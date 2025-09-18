@@ -60,9 +60,5 @@ public class EsgMain implements RequestHandler<SQSEvent, Void> {
         return null;
     }
 
-    public static void main(String[] args) {
-        new EsgMain();
-    }
-
 }
 
