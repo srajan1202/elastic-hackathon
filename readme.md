@@ -2,14 +2,16 @@
 # CarbonScope: ESG Intelligence Platform
 
 
-#### Hackathon Project ####
+### Hackathon Project ###
 This project was developed for the "Forge the Future" Elasticsearch Hackathon, powered by Elastic and AWS. It showcases how AI and data can be combined to create intelligent search solutions that improve lives and businesses.
 
-#### Project Overview ####
+### Project Overview ###
 An intelligent real-time search and analytics system that combines Elasticsearch's powerful search capabilities with AI-driven data processing. The system ingests data in real-time, processes it through specialized AI agents, and provides semantic search with intelligent summarization.
 
 
-#### System Architecture ####
+### System Architecture ###
+
+![Dig.1](https://github.com/srajan1202/elastic-hackathon/blob/main/Arch.png?raw=true)
 
 
 ##### Core Components:
@@ -132,7 +134,7 @@ This document describes the steps to build and deploy the **chatbot**, **esg-rep
 
 ---
 
-## 1. Clone Repository
+#### 1. Clone Repository
 
 ```bash
 git clone https://github.com/srajan1202/elastic-hackathon
@@ -141,7 +143,7 @@ cd elastic-hackathon
 
 ---
 
-## 2. Setup Prerequisites
+#### 2. Setup Prerequisites
 
 * **Java 21** (make sure it is set as default)
 * **Node.js** (latest LTS recommended)
@@ -149,7 +151,7 @@ cd elastic-hackathon
 
 ---
 
-## 3. Build Project
+#### 3. Build Project
 
 Run the following command from the project root:
 
@@ -165,7 +167,7 @@ This will build all three modules:
 
 ---
 
-## 4. Deploy Chatbot (EC2)
+#### 4. Deploy Chatbot (EC2)
 
 1. Create an **EC2 instance** (Amazon Linux 2023 or Ubuntu 22.04 recommended).
 2. Install Java 21 on EC2:
@@ -189,7 +191,7 @@ This will build all three modules:
 
 ---
 
-## 5. Deploy ESG Report and Realtime Agent (Lambda)
+#### 5. Deploy ESG Report and Realtime Agent (Lambda)
 
 1. Navigate to the built JARs:
 
@@ -207,7 +209,7 @@ This will build all three modules:
 
 ---
 
-## 6. IAM Role Setup
+#### 6. IAM Role Setup
 
 Create a single **IAM Role** (e.g., `project-execution-role`) and attach it to:
 
@@ -223,7 +225,7 @@ The role should have the following permissions:
 
 ---
 
-## 7. Environment Configuration
+#### 7. Environment Configuration
 
 Set environment variables for **esg-report** and **realtime-agent** Lambdas:
 
