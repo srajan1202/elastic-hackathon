@@ -30,6 +30,126 @@ An intelligent real-time search and analytics system that combines Elasticsearch
 4. Intelligent Summarization: Automatic generation of concise result summaries
 
 
+Here’s a draft deployment document you can refine for your team:
+
+---
+
+# Build and Deploy Project on AWS
+
+This document describes the steps to build and deploy the **chatbot**, **esg-report**, and **realtime-agent** modules of the project on AWS.
+
+---
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/srajan1202/elastic-hackathon
+cd elastic-hackathon
+```
+
+---
+
+## 2. Setup Prerequisites
+
+* **Java 21** (make sure it is set as default)
+* **Node.js** (latest LTS recommended)
+* **Gradle** (if not already included via wrapper)
+
+---
+
+## 3. Build Project
+
+Run the following command from the project root:
+
+```bash
+./gradlew clean build
+```
+
+This will build all three modules:
+
+* **chatbot** → `chatbot/build/libs/chatbot-<version>.jar`
+* **esg-report** → `esg-report/build/libs/esg-report-<version>.jar`
+* **realtime-agent** → `realtime-agent/build/libs/realtime-agent-<version>.jar`
+
+---
+
+## 4. Deploy Chatbot (EC2)
+
+1. Create an **EC2 instance** (Amazon Linux 2023 or Ubuntu 22.04 recommended).
+2. Install Java 21 on EC2:
+
+   ```bash
+   sudo amazon-linux-extras enable java-openjdk21
+   sudo yum install java-21-amazon-corretto -y
+   ```
+3. Copy the chatbot JAR to EC2:
+
+   ```bash
+   scp chatbot/build/libs/chatbot-<version>.jar ec2-user@<ec2-ip>:/home/ec2-user/chatbot.jar
+   ```
+4. Start chatbot service:
+
+   ```bash
+   java -Xmx4g -jar chatbot.jar
+   ```
+
+> (Optional: Configure **Systemd service** for chatbot to auto-restart)
+
+---
+
+## 5. Deploy ESG Report and Realtime Agent (Lambda)
+
+1. Navigate to the built JARs:
+
+    * `esg-report/build/libs/esg-report-<version>.jar`
+    * `realtime-agent/build/libs/realtime-agent-<version>.jar`
+2. Create two AWS Lambda functions (Runtime: **Java 21**):
+
+    * **esg-report**
+
+        * Handler: `io.github.EsgMain::handleRequest`
+    * **realtime-agent**
+
+        * Handler: `io.github.AgentMain::handleRequest`
+3. Upload the respective JARs to each Lambda.
+
+---
+
+## 6. IAM Role Setup
+
+Create a single **IAM Role** (e.g., `project-execution-role`) and attach it to:
+
+* **Chatbot EC2 instance**
+* **esg-report Lambda**
+* **realtime-agent Lambda**
+
+The role should have the following permissions:
+
+* **Amazon Bedrock** (invoke models)
+* **Amazon SQS** (read messages)
+* (Optional) **CloudWatch Logs** (for monitoring)
+
+---
+
+## 7. Environment Configuration
+
+Set environment variables for **esg-report** and **realtime-agent** Lambdas:
+
+* `ELASTIC_URL` → Elasticsearch cluster endpoint
+* `ELASTIC_API_KEY` → API key for Elasticsearch
+
+For EC2 (chatbot), configure these as system environment variables or in a `.env` file.
+
+---
+
+✅ At this point:
+
+* **Chatbot** runs on EC2
+* **esg-report** runs as Lambda (Java 21)
+* **realtime-agent** runs as Lambda (Java 21)
+* All three share the same IAM role with required permissions
+* Lambdas have environment variables configured
+
 
 
 
