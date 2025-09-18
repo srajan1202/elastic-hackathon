@@ -30,6 +30,101 @@ An intelligent real-time search and analytics system that combines Elasticsearch
 4. Intelligent Summarization: Automatic generation of concise result summaries
 
 ---
+# Elasticsearch Setup
+
+This document describes the steps to setup ingest pipeline and embedding model on Elasticsearch.
+
+#### 1. Upload Sentence transformers embedding model
+
+```bash
+docker run -it --rm --network host \
+    docker.elastic.co/eland/eland eland_import_hub_model \
+      --url https://4e98f18d23f84d59ad7be6e0fd810d38.us-west-2.aws.found.io:443 --es-api-key=$API_KEY \
+      --hub-model-id sentence-transformers/all-MiniLM-L12-v2 \
+      --task-type text_embedding --insecure
+
+```
+
+#### 2. Create Ingest pipeline
+
+```bash
+PUT _ingest/pipeline/text-embedding-pipeline
+{
+  "description": "Text embedding pipeline",
+  "processors": [
+    {
+      "inference": {
+        "model_id": "sentence-transformers__all-minilm-l12-v2",
+        "input_output": [
+            {
+                "input_field": "text",
+                "output_field": "vector"
+            }
+        ]
+      }
+    }
+  ],
+  "on_failure": [
+    {
+      "set": {
+        "description": "Index document to 'failed-<index>'",
+        "field": "_index",
+        "value": "failed-{{{_index}}}"
+      }
+    },
+    {
+      "set": {
+        "description": "Set error message",
+        "field": "ingest.failure",
+        "value": "{{_ingest.on_failure_message}}"
+      }
+    }
+  ]
+}
+```
+
+#### 3. Put Index template
+
+```bash
+PUT _index_template/esg_template
+{
+  "index_patterns": ["*esg*"],
+  "priority": 501,
+  "template": {
+    "settings": {
+      "default_pipeline": "text-embedding-pipeline"
+    },
+    "mappings": {
+      "properties": {
+        "metadata": {
+          "type": "flattened"
+        },
+        "text": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "vector": {
+          "type": "dense_vector",
+          "dims": 384,
+          "index": true,
+          "similarity": "cosine"
+        }
+      }
+    }
+  }
+}
+```
+
+
+
+
+
+---
 
 # Build and Deploy Project on AWS
 
